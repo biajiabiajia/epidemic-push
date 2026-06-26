@@ -1,5 +1,9 @@
 {
   "name": "epidemic-push",
   "version": "1.0.0",
-  "type": "commonjs"
+  "description": "全自动疫情监测微信推送 - 中疾控 + 大白话时事",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node scripts/scrape-and-push.cjs"
+  }
 }
