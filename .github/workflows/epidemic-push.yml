@@ -1,19 +1,44 @@
 name: 疫情监测微信推送
 
 on:
+  # 每天早上8点05分（北京时间）自动执行
+  # UTC 00:05 = 北京时间 8:05（与旧Worker的8:00错开）
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '5 0 * * *'
+  # 允许手动触发（用于测试）
   workflow_dispatch:
 
 jobs:
   scrape-and-push:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # 1. 检出代码
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # 2. 安装 Node.js
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install puppeteer@latest
-      - run: node scripts/scrape-and-push.cjs
+
+      # 3. 安装 Puppeteer
+      - name: 安装依赖
+        run: |
+          npm install puppeteer@latest
+
+      # 4. 运行抓取和推送脚本
+      - name: 执行推送
+        run: node scripts/scrape-and-push.cjs
         env:
+          # 从 GitHub Secrets 读取 PushPlus Token
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+
+      # 5. 保存日志（调试用）
+      - name: 上传日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: push-log
+          path: push.log
